@@ -1,9 +1,11 @@
 
  
-function scorereject3(input_file)
 
-fileID11 = fopen(input_file,'r');
-A=fscanf(fileID11,'%f');
+
+function scorereject3(input_number,dataset_id)
+ 
+%fileID11 = fopen(input_file,'r');
+%A=fscanf(fileID11,'%f');
 
 diary 
 
@@ -24,37 +26,48 @@ datasets{12}='bank';
 datasets{13}='haber';
 datasets{14}='pima';
 
-data=csvread(datasets{A(2)})';
+lam1_vector=[0.01,0.1,1,10,100];
+lam2_vector=[0.01,0.1,1,10,100];
+d_vector=[1,2,3,4];
+c_vector=[0.1,0.2,0.3,0.4,0.5];
+
+params=[0,0,0,0];
+for ccc=1:length(c_vector)
+  for gg=1:length(d_vector)
+    for ll=1:length(lam1_vector)
+      for ff=1:length(lam2_vector)
+	       params=[params; c_vector(ccc),d_vector(gg), lam1_vector(ll), lam2_vector(ff)];
+      end
+    end
+  end
+end
+
+params=params(2:end,:);
 
 
-lam1_vec=[0.01,0.1,1.0,10.0,100.0];
-lam2_vec=[0.01,0.1,1.0,10.0,100.0];
-d_vec=[1,2,3,4];
-%lam1_vec=[1.0];
-%lam2_vec=[1.0];
-%d_vec=[2];
+data=csvread(datasets{str2num(dataset_id)})';
 
+innum=str2num(input_number);
+c=params(innum,1);
+d=params(innum,2);
+lam1=params(innum,3);
+%lam2=params(innum,4);
+lam2=lam2_vector;
+turn=strcat('_c', num2str(c),'_data', dataset_id);
 
-turn=strcat('_c', num2str(A(1)),'_data', num2str(A(2)));
-
-reject(data,A(1),d_vec,lam1_vec,lam2_vec,strcat('genres',strcat(turn,'.txt')),strcat('gen_summary',strcat(turn,'.txt')),A)
+reject(data,c,d,lam1,lam2,strcat('genres',strcat(turn,'.txt')),strcat('gen_summary',strcat(turn,'.txt')),dataset_id)
 diary off
 
 end
 
 
-
-
-
-
-
-function reject(x,c_vec,d_vec,lam1_vec,lam2_vec,file1,file2,A)
+function reject(x,c_vec,d_vec,lam1_vec,lam2_vec,file1,file2,dataset_id)
 
 fileID=fopen(file1,'a+');
-fileID2=fopen(file2,'a+');
+%fileID2=fopen(file2,'a+');
 
-fprintf(fileID,'\n %s \t %f \t %f \t','entrata:', A(1),A(2));
-fprintf(fileID2,'\n %s \t %f \t %f \t','entrata:',A(1),A(2));
+fprintf(fileID,'\n %s \t %f \t %f \t','entrata:', num2str(c_vec),dataset_id);
+%fprintf(fileID2,'\n %s \t %f \t %f \t','entrata:',num2str(c_vec),dataset_id);
 
 
 %%%Diving data into predefined folds
@@ -87,17 +100,17 @@ for i=1:length(c_vec);
                  if eraserun==1
                      numremovedruns=numremovedruns+1;
                  end
-                 if min_val>val(1,2) && eraserun==0
-                     min_val=val(1,2);
-                     avg_train_min=train;
-                     avg_val_min=val;
-                     avg_test_min=test;
-                     c_min=c_vec(i);
-                     lam1_min=lam1_vec(j);
-                     lam2_min=lam2_vec(k);
-                     d_min=d_vec(ii);
-                     sigma_min=1;
-                 end
+%                 if min_val>val(1,2) && eraserun==0
+%                     min_val=val(1,2);
+%                     avg_train_min=train;
+%                     avg_val_min=val;
+%                     avg_test_min=test;
+%                     c_min=c_vec(i);
+%                     lam1_min=lam1_vec(j);
+%                     lam2_min=lam2_vec(k);
+%                     d_min=d_vec(ii);
+%                     sigma_min=1;
+%                 end
               else
                 for ss=1:length(ssigma)
                     disp('PARAMETERS')
@@ -111,31 +124,31 @@ for i=1:length(c_vec);
                     if eraserun==1
                        numremovedruns=numremovedruns+1;
                     end
-                    if min_val>val(1,2) && eraserun==0
-                        min_val=val(1,2);
-                        avg_train_min=train;
-                        avg_val_min=val;
-                        avg_test_min=test;
-                        c_min=c_vec(i);
-                        lam1_min=lam1_vec(j);
-                        lam2_min=lam2_vec(k);
-                        d_min=d_vec(ii);
-                        sigma_min=ssigma(ss);
-                    end
+%                    if min_val>val(1,2) && eraserun==0
+%                        min_val=val(1,2);
+%                        avg_train_min=train;
+%                        avg_val_min=val;
+%                        avg_test_min=test;
+%                        c_min=c_vec(i);
+%                        lam1_min=lam1_vec(j);
+%                        lam2_min=lam2_vec(k);
+%                        d_min=d_vec(ii);
+%                        sigma_min=ssigma(ss);
+%                    end
                 end
               end
             end
          end
      end
      
-     if min_val < 1.5
-        tabletxt(fileID,c_min,d_min,lam1_min,lam2_min,sigma_min,avg_train_min,avg_val_min,avg_test_min,numeremovedruns)
-        tabletxt(fileID2,c_min,d_min,lam1_min,lam2_min,sigma_min,avg_train_min,avg_val_min,avg_test_min,numeremovedruns)
-     end
+%     if min_val < 1.5
+%        tabletxt(fileID,c_min,d_min,lam1_min,lam2_min,sigma_min,avg_train_min,avg_val_min,avg_test_min,numremovedruns)
+%        tabletxt(fileID2,c_min,d_min,lam1_min,lam2_min,sigma_min,avg_train_min,avg_val_min,avg_test_min,numremovedruns)
+%     end
    
 end
 fclose(fileID);
-fclose(fileID2);
+%fclose(fileID2);
 
 end
 
