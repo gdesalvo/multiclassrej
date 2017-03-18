@@ -26,10 +26,10 @@ datasets{12}='bank';
 datasets{13}='haber';
 datasets{14}='pima';
 lam1_vector=[0.01,0.1,1,10,100];
-lam2_vector=[1];%0.01,0.1,1,10,100];
+lam2_vector=[0.01,0.1,1,10,100];
 d_vector=[1,2,3,4];
 c_vector=[0.1,0.2,0.3,0.4,0.5];
-dataset_vector=[1,2,3,4];
+dataset_vector=[1,4,2,3];
 
 params=[0,0,0,0];
 
@@ -56,9 +56,9 @@ lam2=lam2_vector;
 
 data=csvread(datasets{dataset_id})';
 
-turn=strcat('_c', num2str(c),'_data', dataset_id);
+turn=strcat('_c', num2str(c),'_data', num2str(dataset_id));
 
-reject(data,c,d,lam1,lam2,strcat('genres',strcat(turn,'.txt')),strcat('gen_summary',strcat(turn,'.txt')),num2str(dataset_id))
+reject(data,c,d,lam1,lam2,strcat('genres',strcat(turn,'.txt')),strcat('gen_summary',strcat(turn,'.txt')),dataset_id)
 diary off
 
 end
@@ -69,7 +69,7 @@ function reject(x,c_vec,d_vec,lam1_vec,lam2_vec,file1,file2,dataset_id)
 fileID=fopen(file1,'a+');
 %fileID2=fopen(file2,'a+');
 
-fprintf(fileID,'\n %s \t %f \t %f \t','entrata:', num2str(c_vec),dataset_id);
+%fprintf(fileID,'\n %s \t %f \t %f \t','entrata:', num2str(c_vec),dataset_id);
 %fprintf(fileID2,'\n %s \t %f \t %f \t','entrata:',num2str(c_vec),dataset_id);
 
 
@@ -87,7 +87,7 @@ numremovedruns=0;
 ssigma=[1.0,10,100, size(train_fold,2)];
 % Running rejection
 for i=1:length(c_vec);
-     min_val=1.5;
+ %    min_val=1.5;
      for j=1:length(lam1_vec)
          for k=1:length(lam2_vec)
             for ii=1:length(d_vec)
@@ -98,8 +98,8 @@ for i=1:length(c_vec);
                  disp(d_vec(ii))
 
                 [train, val,test,eraserun]=reject_func(train_fold,val_fold,test_fold,c_vec(i),d_vec(ii),lam1_vec(j),lam2_vec(k),1);
+		    fprintf(fileID,'%s %f %s %f %s %f %s %f  %s %f %s %f %s %f %s %f %f %f %f %s %f %f %f %f %s %f  %f %f %f %s %f %f %f %f %s %f %f %f %f %s %f %f %f %f \n','dataset=',dataset_id,',cost=',c_vec(i),',eraserun=',eraserun,',d1=',d_vec(ii),',lam1=',lam1_vec(j),',lam2=',lam2_vec(k),',sigma=',0,',train=',train(1,:),'train_sd=',train(2,:) ,',val=',val(1,:),',val_sd=',val(2,:),',test=',test(1,:), ',test_sd=',test(2,:));
 
-                fprintf(fileID,'%s %f %s %f %s %f  %s %f %s %f %s %f %f %f %f %s %f %f %f %f %s %f  %f %f %f %s %f %f %f %f %s %f %f %f %f %s %f %f %f %f \n','cost=',c_vec(i),',eraserun=',eraserun,',d=',d_vec(ii),',lam1=',lam1_vec(j),',lam2=',lam2_vec(k),',train=',train(1,:),'train_sd=',train(2,:) ,',val=',val(1,:),',val_sd=',val(2,:),',test=',test(1,:), ',test_sd=',test(2,:));
                  if eraserun==1
                      numremovedruns=numremovedruns+1;
                  end
@@ -122,8 +122,8 @@ for i=1:length(c_vec);
                     disp(d_vec(ii))
 
                    [train, val,test,eraserun]=reject_func(train_fold,val_fold,test_fold,c_vec(i),d_vec(ii),lam1_vec(j),lam2_vec(k),ssigma(ss));
+		       fprintf(fileID,'%s %f %s %f %s %f %s %f  %s %f %s %f %s %f %s %f %f %f %f %s %f %f %f %f %s %f  %f %f %f %s %f %f %f %f %s %f %f %f %f %s %f %f %f %f \n','dataset=',dataset_id,',cost=',c_vec(i),',eraserun=',eraserun,',d1=',d_vec(ii),',lam1=',lam1_vec(j),',lam2=',lam2_vec(k),',sigma=',ssigma(ss),',train=',train(1,:),'train_sd=',train(2,:) ,',val=',val(1,:),',val_sd=',val(2,:),',test=',test(1,:), ',test_sd=',test(2,:));
 
-                   fprintf(fileID,'%s %f %s %f %s %f %s %f %s %f %s %f %s %f %f %f %f %s %f %f %f %f %s %f  %f %f %f %s %f %f %f %f %s %f %f %f %f %s %f %f %f %f \n','cost=',c_vec(i),'eraserun=,',eraserun,',d=',d_vec(ii),',sigma=',ssigma(ss),',lam1=',lam1_vec(j),',lam2=',lam2_vec(k),',train=',train(1,:),'train_sd=',train(2,:) ,',val=',val(1,:),',val_sd=',val(2,:),',test=',test(1,:), ',test_sd=',test(2,:));
                     if eraserun==1
                        numremovedruns=numremovedruns+1;
                     end
