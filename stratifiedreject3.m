@@ -1,6 +1,6 @@
 
  
-function stratifiedreject3(input_number,dataset_id)
+function stratifiedreject3(input_number)
  
 %fileID11 = fopen(input_file,'r');
 %A=fscanf(fileID11,'%f');
@@ -25,35 +25,39 @@ datasets{13}='haber';
 datasets{14}='pima';
 
 lam1_vector=[0.01,0.1,1,10,100];
-lam2_vector=[0.01,0.1,1,10,100];
+lam2_vector=[1];%0.01,0.1,1,10,100];
 d_vector=[1,2,3,4];
 c_vector=[0.1,0.2,0.3,0.4,0.5];
+dataset_vector=[1,2,3,4];
 
 params=[0,0,0,0];
-for ccc=1:length(c_vector)
-  for gg=1:length(d_vector)
-    for ll=1:length(lam1_vector)
-      for ff=1:length(lam2_vector)
-	       params=[params; c_vector(ccc),d_vector(gg), lam1_vector(ll), lam2_vector(ff)];
+
+for datt=1:length(dataset_vector)
+  for ccc=1:length(c_vector)
+    for gg=1:length(d_vector)
+      for ll=1:length(lam1_vector)
+%	for ff=1:length(lam2_vector)
+	       params=[params; dataset_vector(datt), c_vector(ccc),d_vector(gg), lam1_vector(ll)];
+%	end
       end
     end
   end
 end
-
 params=params(2:end,:);
 
-
-data=csvread(datasets{str2num(dataset_id)})';
-
 innum=str2num(input_number);
-c=params(innum,1);
-d=params(innum,2);
-lam1=params(innum,3);
-%lam2=params(innum,4);
+dataset_id=params(innum,1);
+c=params(innum,2);
+d=params(innum,3);
+lam1=params(innum,4);
+%lam2=params(innum,5);
 lam2=lam2_vector;
+
+data=csvread(datasets{dataset_id})';
+
 turn=strcat('_c', num2str(c),'_data', dataset_id);
 
-reject(data,c,d,lam1,lam2,strcat('genres',strcat(turn,'.txt')),strcat('gen_summary',strcat(turn,'.txt')),dataset_id)
+reject(data,c,d,lam1,lam2,strcat('genres',strcat(turn,'.txt')),strcat('gen_summary',strcat(turn,'.txt')),num2str(dataset_id))
 diary off
 
 end
